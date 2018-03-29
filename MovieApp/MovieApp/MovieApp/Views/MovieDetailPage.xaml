@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MovieApp.Views.MovieDetailPage"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             Title="{Binding Title}">
+    <StackLayout>
+        <Image BackgroundColor="LightGray" Source="{Binding Movie.PosterPathBig}" />
+        <StackLayout Spacing="20" Padding="15">
+            <Label Text="{Binding Movie.Title}" FontSize="Medium" />
+            <Label Text="{Binding Movie.Genres}" FontSize="Small" />
+            <Label Text="{Binding Movie.Overview}" FontSize="Small" />
+        </StackLayout>
+    </StackLayout>
+</ContentPage>

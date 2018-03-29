@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MovieApp.Views.MovieListPage"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             Title="{Binding Title}"
+             x:Name="BrowseItemsPage"
+             xmlns:c="clr-namespace:MovieApp.Controls">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="RELOAD" Command="{Binding ReloadCommand}" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <StackLayout>
+            <SearchBar HeightRequest="45" Placeholder="Filter movies..." SearchCommand="{Binding SearchMoviesCommand}" Text="{Binding SearchText}" />
+            <c:InfiniteListView ItemsSource="{Binding Movies}"
+                                TapCommand="{Binding NavigateToDetailsCommand}"
+                 VerticalOptions="FillAndExpand"
+                 HasUnevenRows="true"
+                 RefreshCommand="{Binding ReloadMoviesCommand}"
+                 LoadMoreCommand="{Binding LoadMoreMoviesCommand}"
+                 IsPullToRefreshEnabled="true"
+                 IsRefreshing="{Binding IsBusy, Mode=OneWay}">
+                <c:InfiniteListView.ItemTemplate>
+                    <DataTemplate>
+                        <ImageCell ImageSource="{Binding PosterPath}" Text="{Binding Title}" Detail="{Binding Genres}">
+                            
+                        </ImageCell>
+                    </DataTemplate>
+                </c:InfiniteListView.ItemTemplate>
+            </c:InfiniteListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
