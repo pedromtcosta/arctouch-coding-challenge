@@ -21,6 +21,7 @@ namespace MovieApp.ViewModels
         public void OnNavigatedTo(NavigationParameters parameters)
         {
             Movie = (Movie)parameters["movie"];
+            Title = Movie.Title;
         }
 
         public void OnNavigatingTo(NavigationParameters parameters)
