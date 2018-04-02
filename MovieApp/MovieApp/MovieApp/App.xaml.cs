@@ -1,17 +1,11 @@
-﻿using System;
-using System.ComponentModel;
-using MovieApp.Services;
-using MovieApp.ViewModels;
+﻿using MovieApp.Services;
 using MovieApp.Views;
 using Prism.Ioc;
-using Prism.Mvvm;
 using Prism.Unity;
-using Unity;
-using Xamarin.Forms;
 
 namespace MovieApp
 {
-	public partial class App : PrismApplication
+    public partial class App : PrismApplication
     {
 
 		public App ()
@@ -43,6 +37,7 @@ namespace MovieApp
 
             containerRegistry.Register<ITheMovieDbApi, TheMovieDbApi>();
             containerRegistry.Register<IMovieService, MovieService>();
+            
         }
 
         protected override void OnInitialized()

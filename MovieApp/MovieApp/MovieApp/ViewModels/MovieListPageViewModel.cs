@@ -2,6 +2,7 @@
 using MovieApp.Models;
 using MovieApp.Services;
 using Prism.Navigation;
+using Prism.Services;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -13,6 +14,7 @@ namespace MovieApp.ViewModels
     {
         private readonly INavigationService _navigationService;
         private readonly IMovieService _movieService;
+        private readonly IPageDialogService _dialogService;
         private int _page = 1;
 
         public bool IsLoading { get; set; }
@@ -39,10 +41,11 @@ namespace MovieApp.ViewModels
         public ICommand SearchMoviesCommand => new Command(async () => await ExecuteSearchMoviesCommand());
         public ICommand ReloadCommand => new Command(async () => await ReloadCommandExecute());
 
-        public MovieListPageViewModel(IMovieService movieService, INavigationService navigationService)
+        public MovieListPageViewModel(IMovieService movieService, INavigationService navigationService, IPageDialogService dialogService)
         {
             _navigationService = navigationService;
             _movieService = movieService;
+            _dialogService = dialogService;
             Title = "Browse Movies";
 
             LoadInitialData();
@@ -52,10 +55,7 @@ namespace MovieApp.ViewModels
         {
             IsBusy = true;
             var result = await _movieService.GetUpcomingMovies(_page);
-            if (result.IsSuccess)
-            {
-                Movies = new ObservableCollection<Movie>(result.Value);
-            }
+            await CreateMoviesObservableFromResult(result);
             IsBusy = false;
         }
 
@@ -79,6 +79,10 @@ namespace MovieApp.ViewModels
                 }
                 IsBusy = false;
             }
+            else
+            {
+                await _dialogService.DisplayAlertAsync("Error", result.Error, "OK");
+            }
         }
 
         private async Task ExecuteReloadMoviesCommand()
@@ -87,14 +91,7 @@ namespace MovieApp.ViewModels
                 return;
 
             _page = 1;
-
-            IsBusy = true;
-            var result = await GetMovieResults();
-            if (result.IsSuccess)
-            {
-                Movies = new ObservableCollection<Movie>(result.Value);
-            }
-            IsBusy = false;
+            await GetMovies();
         }
 
         private async Task ExecuteSearchMoviesCommand()
@@ -102,13 +99,7 @@ namespace MovieApp.ViewModels
             _page = 1;
             _currentSearch = SearchText;
 
-            IsBusy = true;
-            var result = await GetMovieResults();
-            if (result.IsSuccess)
-            {
-                Movies = new ObservableCollection<Movie>(result.Value);
-            }
-            IsBusy = false;
+            await GetMovies();
         }
 
         private async Task ReloadCommandExecute()
@@ -120,13 +111,7 @@ namespace MovieApp.ViewModels
             SearchText = string.Empty;
             _currentSearch = string.Empty;
 
-            IsBusy = true;
-            var result = await GetMovieResults();
-            if (result.IsSuccess)
-            {
-                Movies = new ObservableCollection<Movie>(result.Value);
-            }
-            IsBusy = false;
+            await GetMovies();
         }
 
         #endregion
@@ -145,6 +130,26 @@ namespace MovieApp.ViewModels
             var parameters = new NavigationParameters();
             parameters.Add("movie", movie);
             await _navigationService.NavigateAsync("MovieDetailPage", parameters);
+        }
+
+        private async Task CreateMoviesObservableFromResult(Result<Movie[]> result)
+        {
+            if (result.IsSuccess)
+            {
+                Movies = new ObservableCollection<Movie>(result.Value);
+            }
+            else
+            {
+                await _dialogService.DisplayAlertAsync("Error", result.Error, "OK");
+            }
+        }
+
+        private async Task GetMovies()
+        {
+            IsBusy = true;
+            var result = await GetMovieResults();
+            await CreateMoviesObservableFromResult(result);
+            IsBusy = false;
         }
 
         #endregion

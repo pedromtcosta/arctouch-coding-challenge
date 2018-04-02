@@ -5,6 +5,7 @@ using Moq;
 using MovieApp.Models;
 using MovieApp.Services;
 using MovieApp.ViewModels;
+using Prism.Services;
 using System.Threading.Tasks;
 
 namespace MovieApp.Spec
@@ -28,9 +29,8 @@ namespace MovieApp.Spec
                     new Movie { }, new Movie { }, new Movie { }, new Movie { }
                    })));
 
-            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null);
+            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null, null);
 
-            viewModel.LoadInitialData();
             viewModel.Movies.Count.Should().Be(4);
         }
 
@@ -39,7 +39,7 @@ namespace MovieApp.Spec
         {
             _mockMovieService.Setup(s => s.GetUpcomingMovies(It.IsAny<int>())).Returns(Task.FromResult(Result.Ok(new Movie[0])));
 
-            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null);
+            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null, null);
 
             viewModel.LoadMoreMoviesCommand.Execute(null);
             _mockMovieService.Verify(s => s.GetUpcomingMovies(2));
@@ -50,7 +50,7 @@ namespace MovieApp.Spec
         {
             _mockMovieService.Setup(s => s.GetUpcomingMovies(It.IsAny<int>())).Returns(Task.FromResult(Result.Ok(new Movie[0])));
 
-            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null);
+            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null, null);
 
             viewModel.LoadMoreMoviesCommand.Execute(null);
             _mockMovieService.Verify(s => s.GetUpcomingMovies(2));
@@ -64,7 +64,7 @@ namespace MovieApp.Spec
         {
             _mockMovieService.Setup(s => s.GetUpcomingMovies(It.IsAny<int>())).Returns(Task.FromResult(Result.Ok(new Movie[0])));
 
-            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null);
+            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null, null);
 
             viewModel.LoadMoreMoviesCommand.Execute(null);
             viewModel.LoadMoreMoviesCommand.Execute(null);
@@ -78,7 +78,7 @@ namespace MovieApp.Spec
         {
             _mockMovieService.Setup(s => s.SearchMovies(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(Result.Ok(new Movie[0])));
 
-            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null);
+            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null, null);
             viewModel.SearchText = "Some query";
             viewModel.LoadMoreMoviesCommand.Execute(null);
             viewModel.LoadMoreMoviesCommand.Execute(null);
@@ -92,7 +92,7 @@ namespace MovieApp.Spec
         {
             _mockMovieService.Setup(s => s.SearchMovies(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(Result.Ok(new Movie[0])));
 
-            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null);
+            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null, null);
             viewModel.SearchText = "Some query";
             viewModel.SearchMoviesCommand.Execute(null);
             viewModel.LoadMoreMoviesCommand.Execute(null);
@@ -108,12 +108,47 @@ namespace MovieApp.Spec
         {
             _mockMovieService.Setup(s => s.SearchMovies(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(Result.Ok(new Movie[0])));
 
-            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null);
+            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null, null);
             viewModel.SearchText = "Some query";
             viewModel.SearchMoviesCommand.Execute(null);
             viewModel.ReloadMoviesCommand.Execute(null);
 
             _mockMovieService.Verify(s => s.SearchMovies(It.IsAny<string>(), 1), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        public void Should_Successfully_Make_Second_Request_If_First_One_Fails()
+        {
+            _mockMovieService.SetupSequence(s => s.GetUpcomingMovies(It.IsAny<int>()))
+                .Returns(Task.FromResult(Result.Fail<Movie[]>("Error")))
+                .Returns(Task.FromResult(Result.Ok(new Movie[]
+                               {
+                    new Movie { }, new Movie { }, new Movie { }, new Movie { }
+                               })));
+
+            var mockPageDialog = new Mock<IPageDialogService>();
+            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null, mockPageDialog.Object);
+
+            viewModel.SearchMoviesCommand.Execute(null);
+            viewModel.Movies.Count.Should().Be(4);
+        }
+
+        [TestMethod]
+        public void Should_Successfully_Search_For_Movies_If_First_Even_When_First_Load_Fails()
+        {
+            _mockMovieService.Setup(s => s.GetUpcomingMovies(It.IsAny<int>())).Returns(Task.FromResult(Result.Fail<Movie[]>("Error")));
+            _mockMovieService.Setup(s => s.SearchMovies(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Task.FromResult(Result.Ok(new Movie[]
+                               {
+                    new Movie { }, new Movie { }, new Movie { }, new Movie { }
+                               })));
+
+            var mockPageDialog = new Mock<IPageDialogService>();
+            var viewModel = new MovieListPageViewModel(_mockMovieService.Object, null, mockPageDialog.Object);
+
+            viewModel.SearchText = "TEST";
+            viewModel.SearchMoviesCommand.Execute(null);
+            viewModel.Movies.Count.Should().Be(4);
         }
     }
 }
