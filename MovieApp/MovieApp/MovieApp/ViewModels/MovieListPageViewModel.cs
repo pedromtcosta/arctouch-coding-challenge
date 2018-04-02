@@ -53,10 +53,20 @@ namespace MovieApp.ViewModels
 
         public async void LoadInitialData()
         {
-            IsBusy = true;
-            var result = await _movieService.GetUpcomingMovies(_page);
-            await CreateMoviesObservableFromResult(result);
-            IsBusy = false;
+            try
+            {
+                IsBusy = true;
+                var result = await _movieService.GetUpcomingMovies(_page);
+                await CreateMoviesObservableFromResult(result);
+            }
+            catch
+            {
+                await _dialogService.DisplayAlertAsync("Error", "An unexpected error ocurred. Please try to reload the movie list", "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         #region Command Implementations
@@ -146,10 +156,20 @@ namespace MovieApp.ViewModels
 
         private async Task GetMovies()
         {
-            IsBusy = true;
-            var result = await GetMovieResults();
-            await CreateMoviesObservableFromResult(result);
-            IsBusy = false;
+            try
+            {
+                IsBusy = true;
+                var result = await GetMovieResults();
+                await CreateMoviesObservableFromResult(result);
+            }
+            catch
+            {
+                await _dialogService.DisplayAlertAsync("Error", "An unexpected error ocurred. Please try to reload the movie list", "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         #endregion
