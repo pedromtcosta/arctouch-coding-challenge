@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Prism.Core" Version="7.0.0.396" />
+    <PackageReference Include="Prism.Forms" Version="7.0.0.396" />
+    <PackageReference Include="Prism.Unity.Forms" Version="7.0.0.396" />
+    <PackageReference Include="Unity" Version="5.8.0" />
+    <PackageReference Include="Xamarin.Forms" Version="2.5.0.122203" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MovieApp.Services\MovieApp.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\AboutPage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\MovieDetailPage.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>MovieDetailPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\MovieListPage.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>MovieListPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\MainPage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>
