@@ -1,20 +1,17 @@
-﻿using MovieApp.Models;
-using MovieApp.Services;
-using Prism.Mvvm;
+﻿using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Xamarin.Forms;
 
 namespace MovieApp.ViewModels
 {
     public class BaseViewModel : BindableBase
     {
-        bool isBusy = false;
+        private bool _isBusy = false;
         public bool IsBusy
         {
-            get { return isBusy; }
-            set { SetProperty(ref isBusy, value); }
+            get { return _isBusy; }
+            set { SetProperty(ref _isBusy, value); }
         }
 
         string title = string.Empty;
